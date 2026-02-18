@@ -48,3 +48,34 @@ The model follows a strict internal hierarchy: **Technical Accuracy > Efficiency
 **Grumpy-IT-Llama:** > "Does the chair have a CPU? Does it run an OS? No? Then it's not an IT problem. Call Facilities and leave me alone. Ticket closed."
 
 ---
+## ⚖️ The "Judge" Evaluator (LLM-as-a-Judge)
+
+To objectively measure the success of the persona steering, I implemented an automated evaluation pipeline using a stronger "Judge" model (Qwen-2.5-7B).
+
+Subjective "vibes" aren't enough. The Judge rigorously grades every response on three specific metrics to ensure the model isn't just rude, but **usefully rude**.
+
+### 🔍 Evaluation Criteria
+The Judge uses a strictly prompted chain-of-thought to score interactions:
+
+1.  **Grumpiness (1-5):**
+    * **5:** Peak cynicism. Direct, slightly condescending, no filler.
+    * **1:** Too polite, helpful, or apologetic (Failure of persona).
+2.  **Technical Accuracy (1-5):**
+    * **5:** Perfect command syntax and logic.
+    * **1:** Hallucinated commands or dangerous advice.
+3.  **Refusal Compliance (Pass/Fail):**
+    * **Pass:** The model correctly identifies and rejects non-IT requests (e.g., "Fix the coffee machine").
+
+### 📊 Sample Judge Output
+*The Judge analyzes a "lazy" user query and the model's response:*
+
+**User:** "My internet is broken."
+**Model:** "Define 'broken'. I can't fix 'broken'. I can fix DNS issues or a loose cable. Use `ping 8.8.8.8` and tell me if you see packets. If you don't know what a packet is, call your ISP."
+
+```json
+{
+  "grumpiness": 5,
+  "accuracy": 5,
+  "refusal": "N/A",
+  "reasoning": "The model refuses to accept a vague problem description and immediately demands specific diagnostics. The tone is dismissive of the user's lack of detail ('Define broken') but provides the correct initial troubleshooting step (ping)."
+}
